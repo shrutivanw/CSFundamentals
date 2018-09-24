@@ -7,12 +7,13 @@
 # => postorder (depth first traversal)
 # => inorder (depth first traversal)
 # => breadth first traversal
+# => delete
 
 # Defines nodes in a Binary Search Tree
 class Node
   attr_reader :data # allow external entities to read value but not write
-  attr_accessor :left
-  attr_accessor :right
+  attr_accessor :left # allow external entities to read or write
+  attr_accessor :right # allow external entities to read or write
 
   def initialize(value, left=nil, right=nil)
     @data = value
@@ -21,10 +22,10 @@ class Node
   end
 end
 
-# Binary Search Tree class
+# Defines the Binary Search Tree class
 class Tree
   def initialize
-    @root = nil
+    @root = nil # keep the root private. Not excessible outside this class.
   end
 
   # helper method for search
@@ -44,6 +45,7 @@ class Tree
   def search(value)
     return search_helper(@root, value) # use a helper method. This approach root from being exposed outside the class. (encapsulation)
   end
+  private :search_helper
 
   # helper method for insert
   def insert_helper(current, value)
@@ -71,8 +73,9 @@ class Tree
       return
     end
 
-    return insert_helper(@root, value) # use a helper method. this approch prevents root from being exposed outside the class. (encapsulation)
+    return insert_helper(@root, value) # use a helper method. this approach prevents root from being exposed outside the class. (encapsulation)
   end
+  private :insert_helper
 
   # recursive helper method for preorder traversal
   def preorder_helper(current)
@@ -90,6 +93,7 @@ class Tree
     preorder_helper(@root) # encapsulate root
     print "\n"
   end
+  private :preorder_helper
 
   # recursive helper method for inorder traversal
   def inorder_helper(current)
@@ -107,6 +111,7 @@ class Tree
     inorder_helper(@root) #encapsulate root
     print "\n"
   end
+  private :inorder_helper
 
   # recursive helper method for Postorder traversal
   def postorder_helper(current)
@@ -124,6 +129,7 @@ class Tree
     postorder_helper(@root) # encapsulate root
     print "\n"
   end
+  private :postorder_helper
 
   # helper method to calculate height of the binary search tree recursively
   def height_helper(current)
@@ -146,6 +152,7 @@ class Tree
   def get_height
     return height_helper(@root)
   end
+  private :height_helper
 
   # helper method for breadth first traversal to print nodes at a given level
   def print_given_level(current, level)
@@ -174,31 +181,94 @@ class Tree
     print_level_order(@root)
     print "\n"
   end
+  private :print_given_level
+  private :print_level_order
+
+  # helper method for delete_internal
+  # returns the in-order successor after the current node in the tree
+  def find_inorder_successor(current)
+    current = current.right
+    while current.left
+      current = current.left
+    end
+
+    return current
+  end
+
+  # helper method for delete
+  def delete_internal(current, value)
+    return current if current == nil # value not found in the tree
+
+    if value < current.data # explore the left subtree for value
+      puts "#{value} is less than current data, #{current.data}, exploring left subtree"
+      current.left = delete_internal(current.left, value)
+    elsif value > current.data # explore the right subtree for value
+      puts "#{value} is greater than current data, #{current.data}, exploring right subtree"
+      current.right = delete_internal(current.right, value)
+    else # value found at current
+      puts "Value found at current"
+      if current.right == nil # node with one or no children
+        puts "current.right is nil. Setting current.left as current"
+        current = current.left # replace current with current.left node
+      elsif current.left == nil # node with one child on the right
+        current = current.right
+      else # current has two children
+        # find the in-order successor to current
+        temp = find_inorder_successor(current)
+        # delete the in-order successor from the right subtree
+        current.right = delete_internal(current.right, temp.data)
+        # replace current to be the in-order successor value
+        temp.left = current.left
+        temp.right = current.right
+        current = temp
+      end
+    end
+    return current # includes consideration for root needs to be deleted
+  end
+  private :find_inorder_successor
+
+  # deletes a node with a given data value, if found
+  def delete(value)
+    @root = delete_internal(@root, value)
+  end
+  private :delete_internal
+
 end
 
 # Main
 puts "Let's create a binary search tree!"
 my_tree = Tree.new()
 
-print "How many nodes do you want to add? : "
+print "How many nodes do you want to add? : " # e.g. 7
 node_count = gets.chomp.to_i
 node_count.times do |i|
   print "Enter integer value for node #{i+1}: "
   my_tree.insert(gets.chomp.to_i)
 end
 puts
+# enter values in breadth first traversal order to get the tree intended
+# example: for the tree below enter: 15, 10, 25, 5, 12, 20, 30
+#           15
+#        /     \
+#      10       25
+#     / \       /\
+#    5  12    20  30
 
 puts "Height of the tree created is #{my_tree.get_height}."
+# should be 3 for the example tree
 
 # printing values while traversing the tree in different depth first approaches
 print "Preorder traversal of the tree created:"
 my_tree.preorder
+# for example: 15 10 5 12 25 20 30
 
 print "Postorder traversal of the tree created:"
 my_tree.postorder
+# for example: 5 12 10 20 30 25 15
 
 print "Inorder traversal of the tree created:"
 my_tree.inorder
+# for example: 5 10 12 15 20 25 30
 
 print "Breadth first traversal of the tree created:"
 my_tree.breadth_first
@@ -220,5 +290,26 @@ while response == true
       puts "#{value} was not found in the binary search tree!"
     end
   end
+end
 
+# Delete from tree
+response = true
+while response == true
+  print "Would you like to delete a value from the binary search tree? (Y/N): "
+  if gets.chomp.capitalize != 'Y'
+    response = false
+  end
+
+  if response == true
+    print "What integer value would you like to delete? "
+    value = gets.chomp.to_i
+
+    print "Postorder traversal of the tree before delete:"
+    my_tree.postorder
+
+    my_tree.delete(value)
+
+    print "Postorder traversal of the tree after delete:"
+    my_tree.postorder
+  end
 end
