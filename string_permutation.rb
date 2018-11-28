@@ -35,7 +35,7 @@ def print_all_permutations(str, start_index, end_index, my_array)
   else # recursive case
     i = start_index
     # loop to:
-    # 1. consider each of remaining character to be at index, start_index
+    # 1. consider each of remaining characters (from start_index to end_index) to be at index
     # 2. recursively call method with start_index + 1
     while i <= end_index
       # swap character at start_index with character at i
