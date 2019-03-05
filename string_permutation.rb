@@ -1,6 +1,7 @@
 # Program that accepts command line parameter as input string
 # All permutations of the input string are saved in an array
 # All values in the array are the printed
+# e.g. input: "abc" will yield output: "abc", "acb", "bac", "bca", "cba", "cab"
 
 # helper method
 # Swaps the characters at index1 and index2 in the input string, str
