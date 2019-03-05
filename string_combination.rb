@@ -34,4 +34,4 @@ def print_current(i, char_count, str, str_length, output)
 end
 
 print_combinations("abcd") 
-# => "a", "b", "c", "d", "ab", "ac", "ad", "bc", "bd", "cd", "abc", "acd", "abd", "bcd"
+# => "a", "b", "c", "d", "ab", "ac", "ad", "bc", "bd", "cd", "abc", "acd", "abd", "bcd", "abcd"
